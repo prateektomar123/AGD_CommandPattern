@@ -24,4 +24,5 @@ public abstract class UnitCommand : ICommand
     /// Must be implemented by concrete subclasses.
     /// </summary>
     public abstract bool WillHitTarget();
+
 }

@@ -1,3 +1,6 @@
+using Command.Main;
+using Command.Player;
+
 public struct CommandData
 {
     public int ActorUnitID;
@@ -12,4 +15,5 @@ public struct CommandData
         this.ActorPlayerID = ActorPlayerID;
         this.TargetPlayerID = TargetPlayerID;
     }
+    
 }
