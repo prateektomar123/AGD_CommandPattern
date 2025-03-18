@@ -1,6 +1,6 @@
 using UnityEngine;
 using Command.Main;
-using Command.Actions;
+using Command.Commands;
 using System.Collections;
 using System;
 using Object = UnityEngine.Object;
@@ -17,7 +17,7 @@ namespace Command.Player
         public UnitType UnitType => unitScriptableObject.UnitType;
         public int CurrentHealth { get; private set; }
         public UnitUsedState UsedState { get; private set; }
-        
+
         private UnitAliveState aliveState;
         private Vector3 originalPosition;
         public int CurrentPower;
@@ -76,7 +76,7 @@ namespace Command.Player
             else
                 unitView.PlayAnimation(UnitAnimations.HIT);
 
-            unitView.UpdateHealthBar((float) CurrentHealth / CurrentMaxHealth);
+            unitView.UpdateHealthBar((float)CurrentHealth / CurrentMaxHealth);
         }
 
         public void RestoreHealth(int healthToRestore)
@@ -97,7 +97,7 @@ namespace Command.Player
             MoveToBattlePosition(battlePosition, callback, true, commandType);
         }
 
-        private void MoveToBattlePosition(Vector3 battlePosition, Action callback = null,  bool shouldPlayActionAnimation = true, CommandType commandTypeToExecute = CommandType.None)
+        private void MoveToBattlePosition(Vector3 battlePosition, Action callback = null, bool shouldPlayActionAnimation = true, CommandType commandTypeToExecute = CommandType.None)
         {
             float moveTime = Vector3.Distance(unitView.transform.position, battlePosition) / unitScriptableObject.MovementSpeed;
             unitView.StartCoroutine(MoveToPositionOverTime(battlePosition, moveTime, callback, shouldPlayActionAnimation, commandTypeToExecute));
@@ -124,17 +124,17 @@ namespace Command.Player
                 callback.Invoke();
         }
 
-        private void PlayActionAnimation(CommandType commandType)
+        private void PlayActionAnimation(CommandType actionType)
         {
-            if (commandType == CommandType.None)
+            if (actionType == CommandType.None)
                 return;
-            
-            if (commandType == unitScriptableObject.executableCommands[0])
+
+            if (actionType == unitScriptableObject.executableCommands[0])
                 unitView.PlayAnimation(UnitAnimations.ACTION1);
-            else if (commandType == unitScriptableObject.executableCommands[1])
+            else if (actionType == unitScriptableObject.executableCommands[1])
                 unitView.PlayAnimation(UnitAnimations.ACTION2);
             else
-                throw new System.Exception($"No Animation found for the action type : {commandType}");
+                throw new System.Exception($"No Animation found for the action type : {actionType}");
         }
 
         public void OnActionExecuted()
@@ -153,7 +153,9 @@ namespace Command.Player
 
         public void ResetUnitIndicator() => unitView.SetUnitIndicator(false);
 
-        public Vector3 GetEnemyPosition() 
+        public void ProcessUnitCommand(UnitCommand commandToProcess) => GameService.Instance.CommandInvoker.ProcessCommand(commandToProcess);
+
+        public Vector3 GetEnemyPosition()
         {
             if (Owner.PlayerID == 1)
                 return unitView.transform.position + unitScriptableObject.EnemyBattlePositionOffset;
