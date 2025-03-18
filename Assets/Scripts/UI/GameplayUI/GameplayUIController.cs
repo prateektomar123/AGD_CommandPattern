@@ -13,6 +13,7 @@ namespace Command.UI
             this.gameplayView = gameplayView;
             this.gameplayView.SetController(this);
         }
+        public void OnUndoButtonClicked() => GameService.Instance.CommandInvoker.Undo();
 
         public void Show() => gameplayView.EnableView();
 
