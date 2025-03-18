@@ -1,43 +1,40 @@
-using System.Collections.Generic;
-using Command.Commands;
 using Command.Main;
-/// <summary>
-/// A class responsible for invoking and managing commands.
-/// </summary>
-public class CommandInvoker
+using System.Collections.Generic;
+
+namespace Command.Commands
 {
-    // A stack to keep track of executed commands.
-    private Stack<ICommand> commandRegistry = new Stack<ICommand>();
-
-    /// <summary>
-    /// Process a command, which involves both executing it and registering it.
-    /// </summary>
-    /// <param name="commandToProcess">The command to be processed.</param>
-    public void ProcessCommand(ICommand commandToProcess)
+    public class CommandInvoker
     {
-        ExecuteCommand(commandToProcess);
-        RegisterCommand(commandToProcess);
-    }
+        private Stack<ICommand> commandRegistry = new Stack<ICommand>();
 
-    /// <summary>
-    /// Execute a command, invoking its associated action.
-    /// </summary>
-    /// <param name="commandToExecute">The command to be executed.</param>
-    public void ExecuteCommand(ICommand commandToExecute) => commandToExecute.Execute();
+        public CommandInvoker() => SubscribeToEvents();
 
-    /// <summary>
-    /// Register a command by adding it to the command registry stack.
-    /// </summary>
-    /// <param name="commandToRegister">The command to be registered.</param>
-    public void RegisterCommand(ICommand commandToRegister) => commandRegistry.Push(commandToRegister);
+        private void SubscribeToEvents() => GameService.Instance.EventService.OnReplayButtonClicked.AddListener(SetReplayStack);
 
-    private bool RegistryEmpty() => commandRegistry.Count == 0;
+        public void ProcessCommand(ICommand commandToProcess)
+        {
+            ExecuteCommand(commandToProcess);
+            RegisterCommand(commandToProcess);
+        }
 
-    private bool CommandBelongsToActivePlayer() => (commandRegistry.Peek() as UnitCommand).commandData.ActorPlayerID == GameService.Instance.PlayerService.ActivePlayerID;
+        public void ExecuteCommand(ICommand commandToExecute) => commandToExecute.Execute();
 
-    public void Undo()
-    {
-        if (!RegistryEmpty() && CommandBelongsToActivePlayer())
-            commandRegistry.Pop().Undo();
+        public void RegisterCommand(ICommand commandToRegister) => commandRegistry.Push(commandToRegister);
+
+        public void Undo()
+        {
+            if (!RegistryEmpty() && CommandBelongsToActivePlayer())
+                commandRegistry.Pop().Undo();
+        }
+
+        public void SetReplayStack()
+        {
+            GameService.Instance.ReplayService.SetCommandStack(commandRegistry);
+            commandRegistry.Clear();
+        }
+
+        private bool RegistryEmpty() => commandRegistry.Count == 0;
+
+        private bool CommandBelongsToActivePlayer() => (commandRegistry.Peek() as UnitCommand).commandData.ActorPlayerID == GameService.Instance.PlayerService.ActivePlayerID;
     }
 }
