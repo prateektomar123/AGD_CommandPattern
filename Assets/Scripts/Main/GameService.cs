@@ -10,17 +10,11 @@ using Command.Battle;
 using Command.Actions;
 using UnityEngine.UI;
 using Command.Commands;
+using Command.Replay;
 //using Command.Commands;
 
 namespace Command.Main
 {
-
-    /**  This script demonstrates implementation of the Service Locator Pattern.
-    *  If you're interested in learning about Service Locator Pattern, 
-    *  you can find a dedicated course on Outscal's website.
-    *  Link: https://outscal.com/courses
-    **/
-
     public class GameService : GenericMonoSingleton<GameService>
     {
         // Services:
